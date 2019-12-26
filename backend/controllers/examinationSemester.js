@@ -1,11 +1,11 @@
 const uuid = require('uuid')
-const ExaminationSemester = require('../models/ExaminationSemester');
-const ExaminationRoom = require('../models/ExaminationRoom');
-const ExaminationShift = require('../models/ExaminationShift');
-const ExaminationShiftExaminationRoom = require('../models/ExaminationShiftExaminationRoom');
-const ExaminationShiftCourse = require('../models/ExaminationShiftCourse');
-const Course = require('../models/Course');
-const Sequelize = require('sequelize');
+const ExaminationSemester = require('../models/ExaminationSemester')
+const ExaminationRoom = require('../models/ExaminationRoom')
+const ExaminationShift = require('../models/ExaminationShift')
+const ExaminationShiftExaminationRoom = require('../models/ExaminationShiftExaminationRoom')
+const ExaminationShiftCourse = require('../models/ExaminationShiftCourse')
+const Course = require('../models/Course')
+const Sequelize = require('sequelize')
 
 exports.getAllExaminationSemesters = (req, res, next) => {
     ExaminationSemester.findAll({
@@ -25,7 +25,7 @@ exports.getAllExaminationSemesters = (req, res, next) => {
         res.status(500).json({
             error: error,
             message: 'Có lỗi xảy ra'
-        });
+        })
     })
 }
 
@@ -54,7 +54,7 @@ exports.createExaminationSemester = (req, res, next) => {
         res.status(500).json({
             error: error,
             message: 'Có lỗi xảy ra'
-        });
+        })
     })
 }
 
@@ -84,7 +84,7 @@ exports.createRoom = (req, res, next) => {
         res.status(500).json({
             error: error,
             message: 'Có lỗi xảy ra'
-        });
+        })
     })
 }
 
@@ -127,7 +127,7 @@ exports.creatExaminationShift = (req, res, next) => {
                     })
                 }
                 else {
-                    const shiftUuid = uuid();
+                    const shiftUuid = uuid()
                     ExaminationShift.create({
                         uuid: shiftUuid,
                         examination_date: req.body.examination_date,
@@ -144,7 +144,7 @@ exports.creatExaminationShift = (req, res, next) => {
                             res.status(500).json({
                                 error: error,
                                 message: 'Có lỗi xảy ra'
-                            });
+                            })
                         })
 
                         ExaminationShiftExaminationRoom.create({
@@ -156,7 +156,7 @@ exports.creatExaminationShift = (req, res, next) => {
                             res.status(500).json({
                                 error: error,
                                 message: 'Có lỗi xảy ra'
-                            });
+                            })
                         })
 
                         res.status(201).json({
@@ -167,7 +167,7 @@ exports.creatExaminationShift = (req, res, next) => {
                         res.status(500).json({
                             error: error,
                             message: 'Có lỗi xảy ra'
-                        });
+                        })
                     })
                 }
             })
@@ -177,13 +177,13 @@ exports.creatExaminationShift = (req, res, next) => {
         res.status(500).json({
             error: error,
             message: 'Có lỗi xảy ra'
-        });
+        })
     })
     
 }
 
 exports.getAllExaminationShifts = (req, res, next) => {
-    const page = req.query.page;
+    const page = req.query.page
     ExaminationSemester.findOne({
         where: {uuid: req.params.examination_semester_uuid},
         attributes: ['uuid', 'year', 'semester'],
@@ -230,7 +230,7 @@ exports.getAllExaminationShifts = (req, res, next) => {
         res.status(500).json({
             error: error,
             message: 'Có lỗi xảy ra'
-        });
+        })
     })
 }
 
@@ -273,7 +273,7 @@ exports.getExaminationShift = (req, res, next) => {
         res.status(500).json({
             error: error,
             message: 'Có lỗi xảy ra'
-        });
+        })
     })
 }
 
@@ -347,7 +347,7 @@ exports.getExaminationShift = (req, res, next) => {
         res.status(500).json({
             error: error,
             message: 'Có lỗi xảy ra'
-        });
+        })
     })
 }
 */
@@ -393,6 +393,6 @@ exports.deleteExaminationShift = (req, res, next) => {
         res.status(500).json({
             error: error,
             message: 'Có lỗi xảy ra'
-        });
+        })
     })
 }

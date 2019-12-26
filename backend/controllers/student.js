@@ -1,177 +1,117 @@
 const Student = require('../models/Student');
-const ModuleClass = require('../models/ModuleClass');
+// const ModuleClass = require('../models/ModuleClass');
 const Account = require('../models/Account');
-const StudentModuleClass = require('../models/StudentModuleClass');
+// const StudentModuleClass = require('../models/StudentModuleClass');
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 
-exports.getAllStudents = (req, res, next) => {
-    const page = req.query.page;
-    Student.findAll({
-        attributes: ['uuid', 'fullname', 'student_code', 'class_name', 'birth_date', 'class_code', 'vnu_mail'],
-        order: [['student_code', 'ASC']],
-        limit: 10,
-        offset: 10*page
+exports.getAllStudents = async (req, res, err) => {
+    const result = await Student.find().select('-_id').lean()
+
+    if (!result) return res.status(404).json({
+        message: 'Không tìm thấy sinh viên'
     })
-    .then(students => {
-        res.status(200).json({
-            result: students
-        })
-    })
-    .catch(error => {
-        res.status(500).json({
-            error: error,
-            message: 'Có lỗi xảy ra'
-        })
+
+    return res.status(200).json({
+        message: 'Tìm kiếm thành công',
+        result
     })
 }
 
-exports.getStudent = (req, res, next) => {
-    Student.findOne({
-        attributes: ['uuid', 'fullname', 'student_code', 'class_name', 'birth_date', 'class_code', 'vnu_mail'],
-        where: {
-            uuid: req.params.student_uuid
-        },
-        include: [{
-            model: ModuleClass,
-            attributes: ['uuid', 'module_class_code', 'number_of_credits', 'lecturer_name'],
-            through: {
-                model: StudentModuleClass,
-                as: 'condition',
-                attributes: ['status']
-            }
-        }]
+exports.getStudent = async (req, res, err) => {
+    const result = await Student.findOne({
+        uuid: req.params.uuid
     })
-    .then(student => {
-        if(!student) {
-            return res.status(404).json({
-                message: 'Not Found'
-            });
-        }
-        else {
-            console.log(student);
-            res.status(200).json({
-                result: student
-            })
-        }
+    .select('-_id')
+    .lean()
+
+    if (!result) return res.status(404).json({
+        message: 'Không tìm thấy sinh viên'
     })
-    .catch(error => {
-        res.status(500).json({
-            error: error,
-            message: 'Có lỗi xảy ra'
-        })
+    
+    return res.status(200).json({
+        message: 'Tìm kiếm thành công',
+        result
     })
 }
 
-exports.deleteStudent = (req, res, next) => {
-    Student.destroy({
-        attributes: ['uuid', 'fullname', 'student_code', 'class_name', 'birth_date', 'class_code', 'vnu_mail'],
-        where: {
-            uuid: req.params.student_uuid
-        },
-        include: [{
-            model: ModuleClass,
-            attributes: ['uuid', 'module_class_code', 'number_of_credits', 'lecturer_name'],
-            through: {
-                model: StudentModuleClass,
-                as: 'condition',
-                attributes: ['status']
-            }
-        }]
+exports.deleteStudent = async (req, res, err) => {
+    const deletedStudent = await Student.deleteOne({
+        uuid: req.params.uuid
     })
-    .then(student => {
-        if(!student) {
-            return res.status(404).json({
-                message: 'Not Found'
-            });
-        }
-        else {
-            console.log(student);
-            res.status(200).json({
-                message: 'Xóa sinh viên thành công'
-            })
-        }
+
+    const deletedAccount = await Account.deleteOne({
+        uuid: req.params.uuid
     })
-    .catch(error => {
-        res.status(500).json({
-            error: error,
-            message: 'Có lỗi xảy ra'
-        })
+
+    if (deletedStudent.deletedCount === 0) return res.status(404).json({
+        error: 'Not found',
+        message: 'Không tìm thấy sinh viên'
+    })
+
+    return res.status(200).json({
+        message: 'Xóa thành công'
     })
 } 
 
-exports.editStudent = (req, res, next) => {
-    Student.update(
-        {
-            student_code: req.body.student_code,
-            fullname: req.body.fullname,
-            birth_date: req.body.birth_date,
-            class_name: req.body.class_name,
-            class_code: req.body.class_code,
-            vnu_mail: req.body.vnu_mail
-        },
-        { 
-            where: {uuid: req.params.student_uuid}
-        } 
-    )
-    .then(result => {
-        if(result[0] === 0) {
-            return res.status(404).json({
-                message: 'Không tìm thấy sinh viên'
-            })
-        }
-        else {
-            return res.status(200).json({
-               message: 'Chỉnh sửa thông tin sinh viên thành công'
-            })
-        }
+exports.editStudent = async (req, res, err) => {
+    const result = await Student.updateOne({
+        uuid: req.params.uuid,
+    }, {
+        // student_code: req.body.student_code,
+        fullname: req.body.fullname,
+        birth_date: req.body.birth_date,
+        class_name: req.body.class_name,
+        class_code: req.body.class_code,
+        vnu_email: req.body.vnu_email,
+        note: req.body.note
     })
-    .catch(error => {
-        res.status(500).json({
-            error: error,
-            message: 'Có lỗi xảy ra'
-        })
+
+    if (result.n === 0) return res.status(404).json({
+        error: 'Not matched any items',
+        message: 'Không tìm thấy sinh viên'
+    })
+    
+    return res.status(200).json({
+        message: 'Cập nhật thành công'
     })
 }
 
-exports.addStudentAccounts = (req, res, next) => {
-    Student.findAll({
-        attributes: ['uuid', 'student_code']
-    })
-    .then(students => {
-        for(var i = 0; i < students.length; i++) {
-            const tempUuid = students[i].uuid;
-            const tempStudentCode = students[i].student_code;
-            Account.findOne({ where: {studentUuid: tempUuid} })
-            .then(result => {
-                if(!result) {
-                    bcrypt.hash(tempStudentCode, 10, (err, hash) => {
-                        if(err) {
-                            return res.status(500).json({
-                                error: err,
-                                message: 'Có lỗi xảy ra'
-                            })
-                        }
-                        else {
-                            Account.create({
-                                uuid: uuid(),
-                                studentUuid: tempUuid,
-                                username: tempStudentCode,
-                                password: hash,
-                                role: 1
-                            })
-                        }
+exports.addStudentAccounts = (req, res, err) => {
+    const query = Student.find().select('uuid student_code').lean().exec()
+    query
+    .then(async students => {
+        for (const student of students) {
+            console.log(student.uuid)
+            console.log(student.student_code)
+            
+            const result = await Account.findOne({uuid: student.uuid}).lean()
+            if (!result) {
+                bcrypt.hash(student.student_code, 10, (err, hash) => {
+                    if (err) {
+                        return res.status(500).json({
+                            error: err,
+                            message: 'Có lỗi xảy ra'
+                        })
+                    }
+    
+                    Account.create({
+                        uuid: student.uuid,
+                        username: student.student_code,
+                        password: hash,
+                        role: 'student'
                     })
-                }
-            })
+                })
+            }
         }
-        res.status(200).json({
-            message: 'Cấp tài khoản cho sinh viên thành công'
+
+        return res.status(200).json({
+            message: 'Cấp tài khoản sinh viên thành công'
         })
     })
-    .catch(error => {
-        res.status(500).json({
-            error: error,
+    .catch(err => {
+        return res.status(500).json({
+            error: err,
             message: 'Có lỗi xảy ra'
         })
     })

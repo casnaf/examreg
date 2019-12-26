@@ -1,38 +1,44 @@
-const Account = require('../models/Account');
-const Admin = require('../models/Admin');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const uuid = require('uuid');
+const Account = require('../models/Account')
+const Admin = require('../models/Admin')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const uuid = require('uuid')
 
 
-exports.login = (req, res, next) => {
-    Account.findOne({where: {username: req.body.username}})
+exports.login = (req, res, err) => {
+    const query = Account.findOne({username: req.body.username}).exec()
+
+    query
     .then(account => {
-        if(account) {
+        if (account) {
             bcrypt.compare(req.body.password, account.password, (err, result) => {
-                if(err) {
+                if (err) {
                     return res.status(401).json({
                         message: 'Auth Failed'
                     })
                 }
-                if(result) {
+
+                if (result) {
                     const token = jwt.sign({
-                        username: account.username,
-                        uuid: account.uuid,
-                        role: account.role
-                    },
-                    'exam-register-web',
-                    {expiresIn: '1h'}
-                    );
+                            username: account.username,
+                            uuid: account.uuid,
+                            role: account.role
+                        },
+                        'exam-register-web',
+                        {expiresIn: '1h'}
+                    )
+
                     res.cookie('access_token', token, {
-                        expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
+                        expires: new Date(Date.now() + 6 * 3600000), // cookie will be removed after 1 hours
                         overwrite: true
-                    });
+                    })
+
                     return res.status(201).json({
                         message: 'Auth Success',
                         token: token
                     })
                 }
+
                 return res.status(401).json({
                     message: 'Auth Failed'
                 })
@@ -45,21 +51,18 @@ exports.login = (req, res, next) => {
         }
     })
     .catch(err => {
-        res.status(500).json({error: err});
+        res.status(500).json({error: err})
     })
 }
 
-
-exports.createAdminAccount = (req, res, next) => {
+exports.createAdminAccount = (req, res, err) => {
     bcrypt.hash(req.body.password, 10, (err, hash) => {
-        if(err) {
-            return res.status(500).json({
-                error: err
-            })
+        if (err) {
+            return res.status(500).json({error: err})
         }
         else {
             try {
-                const adminUuid = uuid();
+                const adminUuid = uuid()
                 Admin.create({
                     uuid: adminUuid,
                     fullname: req.body.fullname,
@@ -70,18 +73,18 @@ exports.createAdminAccount = (req, res, next) => {
                 })
                 .then(result => {
                     console.log(result)
-                });
+                })
     
                 Account.create({
-                    uuid: uuid(),
-                    adminUuid: adminUuid,
+                    uuid: adminUuid,
                     username: req.body.username,
                     password: hash,
                     role: req.body.role
                 })
                 .then(result => {
                     console.log(result)
-                });
+                })
+
                 res.status(201).json({
                         message: 'Admin Created'
                 })

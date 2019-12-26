@@ -1,12 +1,12 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
 
-const courseController = require('../controllers/course');
-
-
-router.get('/', courseController.getAllCourse);
-router.get('/:course_uuid', courseController.getCourse);
-router.patch('/:course_uuid', courseController.editCourse);
+const courseController = require('../controllers/course')
 
 
-module.exports = router;
+router.get('/', courseController.getAllCourse)
+router.get('/:uuid', courseController.getCourse)
+router.post('/:uuid', courseController.editCourse)
+
+
+module.exports = router
