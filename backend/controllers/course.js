@@ -4,7 +4,10 @@ const Class = require('../models/Class')
 
 exports.getAllCourse = async (req, res, err) => {
     const result = await Course.find()
-        .populate('classes')
+        .populate({
+            path: 'classes',
+            populate: 'students'
+        })
         .lean()
         .limit(10)
 
@@ -19,7 +22,7 @@ exports.getAllCourse = async (req, res, err) => {
 }
 
 exports.getCourse = async (req, res, err) => {
-    const result = await Course.findOne({ uuid: req.params.uuid })
+    const result = await Course.findOne({ code: req.params.uuid })
         .populate('classes')
         .lean()
         .limit(10)
@@ -36,14 +39,8 @@ exports.getCourse = async (req, res, err) => {
 
 exports.editCourse = async (req, res, err) => {
     const result = await Course.updateOne({ 
-        uuid: req.params.uuid 
-    }, {
-        code: req.body.code,
-        name: req.body.name,
-        institute: req.body.institute,
-        examine_method: req.body.examine_method,
-        examine_time: req.body.examine_time
-    })
+        code: req.params.uuid 
+    }, { ...req.body })
 
     if (result.n === 0) return res.status(404).json({
         error: 'Not matched any items',

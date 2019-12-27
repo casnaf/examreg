@@ -10,4 +10,4 @@ const Course = new mongoose.Schema({
     classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'classes' }]
 })
 
-module.exports = mongoose.model('course', Course)
+module.exports = mongoose.model('courses', Course)

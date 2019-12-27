@@ -1,4 +1,4 @@
-const uuid = require('uuid')
+// const uuid = require('uuid')
 const exceljs = require('exceljs')
 const Course = require('../models/Course')
 const Class = require('../models/Class')
@@ -9,7 +9,6 @@ const mongoose = require('mongoose')
 
 exports.addClass = (req, res, err) => {
     // đọc file excel: 8 dòng đầu là thông tin học phần và lớp học phần
-    console.log(req.file)
     const wb = new exceljs.Workbook()
     wb.xlsx.readFile(req.file.path).then( async () => {
         const sheet = wb.getWorksheet(1)
@@ -58,9 +57,16 @@ exports.addClass = (req, res, err) => {
                 message: 'Thành công'
             })
         } else {
-            console.log(1111)
+            const foundClass = await Class.findOne({ code: temp[5] })
+            if ( foundClass ) {
+                return res.status(500).json({
+                    message: 'Đã tồn tại lớp học phần này'
+                })
+            }
+            
+            console.log('update only')
             const [studentObjectIds, availableStudents] = await _insertStudent(studentList)            
-
+            
             const classInsert = await Class.create({
                 code: temp[5],
                 number_of_credits: temp[6],
@@ -81,149 +87,6 @@ exports.addClass = (req, res, err) => {
                 message: 'Thành công'
             })
         }
-    //     Course.findOne({ where: {course_code: course.course_code} })
-    //     .then(doc => {
-    //         // nếu chưa có học phần trong db: thêm mới học phần và lớp học phần
-    //         if(!doc) {
-    //             // thông tin lớp học phần
-    //             const moduleClass = {
-    //                 uuid: uuid(),
-    //                 courseUuid: courseUuid,
-    //                 module_class_code: temp[5],
-    //                 number_of_credits: temp[6],
-    //                 lecturer_name: temp[7]
-    //             }
-
-    //             Course.create(course).then(result => {
-    //                 ModuleClass.create(moduleClass).then(mClass => {
-    //                     for(var i = 0 ; i < studentList.length ; i++) {
-    //                         const studentUuid = uuid();
-    //                         const student = {
-    //                             uuid: studentUuid,
-    //                             fullname: studentList[i][1],
-    //                             student_code: studentList[i][0],
-    //                             birth_date: studentList[i][2],
-    //                             class_code: studentList[i][4],
-    //                             class_name: studentList[i][3],
-    //                             vnu_mail: studentList[i][0] + '@vnu.edu.com'
-    //                         }
-    //                         const status = studentList[i][5];
-    //                         Student.findOne({ where: {student_code: student.student_code} })
-    //                         .then(stu => {
-    //                             if(stu) {
-    //                                 StudentModuleClass.create({
-    //                                     studentUuid: stu.uuid,
-    //                                     moduleClassUuid: mClass.uuid,
-    //                                     status: status
-    //                                 })
-    //                                 .catch(error => {
-    //                                     res.status(409).json({
-    //                                         error: error,
-    //                                         message: 'Có lỗi xảy ra'
-    //                                     })
-    //                                 });
-    //                             }
-    //                             else {
-    //                                 Student.create(student).then(newStu => {
-    //                                     StudentModuleClass.create({
-    //                                         studentUuid: newStu.uuid,
-    //                                         moduleClassUuid: mClass.uuid,
-    //                                         status: status
-    //                                     });
-    //                                 })
-    //                                 .catch(error => {
-    //                                     res.status(409).json({
-    //                                         error: error,
-    //                                         message: 'Có lỗi xảy ra'
-    //                                     })
-    //                                 });;                                    
-    //                             }
-    //                         });
-    //                     }
-    //                 });
-    //                 res.status(201).json({
-    //                     message: 'Thêm lớp học phần thành công'
-    //                 });
-    //             }).catch(error => {
-    //                 res.status(409).json({
-    //                     error: error,
-    //                     message: 'Có lỗi xảy ra'
-    //                 })
-    //             });
-    //         }
-    //         // nếu đã tồn tạo học phần: chỉ thêm lớp học phần
-    //         else {
-    //             // thông tin học phần
-    //             // nếu lớp học phần đã tồn tại: báo lỗi
-    //             const moduleClass = {
-    //                 uuid: uuid(),
-    //                 courseUuid: doc.uuid,
-    //                 module_class_code: temp[5],
-    //                 number_of_credits: temp[6],
-    //                 lecturer_name: temp[7]
-    //             }
-    //             ModuleClass.create(moduleClass).then(mClass => {
-    //                 for(var i = 0 ; i < studentList.length ; i++) {
-    //                     const studentUuid = uuid();
-    //                     const student = {
-    //                         uuid: studentUuid,
-    //                         fullname: studentList[i][1],
-    //                         student_code: studentList[i][0],
-    //                         birth_date: studentList[i][2],
-    //                         class_code: studentList[i][4],
-    //                         class_name: studentList[i][3],
-    //                         vnu_mail: studentList[i][0] + '@vnu.edu.com'
-    //                     }
-    //                     const status = studentList[i][5];
-    //                     Student.findOne({ where: {student_code: student.student_code} })
-    //                     .then(stu => {
-    //                         if(stu) {
-    //                             StudentModuleClass.create({
-    //                                 studentUuid: stu.uuid,
-    //                                 moduleClassUuid: mClass.uuid,
-    //                                 status: status
-    //                             }).catch(error => {
-    //                                 res.status(409).json({
-    //                                     error: error,
-    //                                     message: 'Có lỗi xảy ra'
-    //                                 })
-    //                             });
-    //                         }
-    //                         else {
-    //                             Student.create(student).then(newStu => {
-    //                                 StudentModuleClass.create({
-    //                                     studentUuid: newStu.uuid,
-    //                                     moduleClassUuid: mClass.uuid,
-    //                                     status: status
-    //                                 });
-    //                             })
-    //                             .catch(error => {
-    //                                 res.status(409).json({
-    //                                     error: error,
-    //                                     message: 'Có lỗi xảy ra'
-    //                                 })
-    //                             });                                    
-    //                         }
-    //                     });
-    //                 }
-    //                 res.status(201).json({
-    //                     message: 'Thêm lớp học phần thành công'
-    //                 });
-    //             }).catch(error => {
-    //                 res.status(409).json({
-    //                     error: error,
-    //                     message: 'Lớp học phần đã tồn tại'
-    //                 })
-    //             });
-    //         }
-    //     })
-        
-    // })
-    // .catch(error => {
-    //     res.status(500).json({
-    //         error: error,
-    //         message: 'Có lỗi xảy ra'
-    //     })
     })
 }
 
@@ -264,36 +127,19 @@ const _insertStudent = async (studentList) => {
     return [studentObjectIds, availableStudents]
 }
 
-exports.getClass = (req, res, next) => {
-    ModuleClass.findOne({
-        attributes: ['uuid', 'module_class_code', 'number_of_credits', 'lecturer_name', 'courseUuid'], 
-        where:{uuid: req.params.module_class_uuid},
-        include: [{
-            model: Student,
-            attributes: ['uuid', 'fullname', 'student_code', 'class_name', 'birth_date', 'class_code'],
-            through: {
-                model: StudentModuleClass,
-                as: 'condition',
-                attributes: ['status']
-            }
-        }] 
+exports.getClass = async (req, res, err) => {
+    const result = await Class.findOne({
+        _id: mongoose.Types.ObjectId(req.params.uuid)
     })
-    .then(result => {
-        if(!result) {
-            return res.status(404).json({
-                message: 'Not Found'
-            });
-        }
-        else {
-            return res.status(200).json({
-                result: result
-            });
-        }
+    .populate('students')
+    .lean()
+
+    if (!result) return res.status(404).json({
+        message: 'Không tìm thấy'
     })
-    .catch(error => {
-        res.status(500).json({
-            error: error,
-            message: 'Có lỗi xảy ra'
-        })
+
+    return res.status(200).json({
+        message: 'Thành công',
+        result
     })
 }

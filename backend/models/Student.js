@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 const Student = new mongoose.Schema({
-    // uuid: String,
     fullname: String,
     student_code: String,
     vnu_email: String,
@@ -11,4 +10,4 @@ const Student = new mongoose.Schema({
     note: String
 })
 
-module.exports = mongoose.model('student', Student)
+module.exports = mongoose.model('students', Student)

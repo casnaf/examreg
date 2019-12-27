@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 const Admin = new mongoose.Schema({
-    uuid: String,
     fullname: String,
     email: String,
     vnu_email: String,
@@ -9,4 +8,4 @@ const Admin = new mongoose.Schema({
     note: String
 })
 
-module.exports = mongoose.model('admin', Admin)
+module.exports = mongoose.model('admins', Admin)
