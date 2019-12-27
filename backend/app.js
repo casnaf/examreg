@@ -8,7 +8,9 @@ const accountRoutes = require('./routes/account')
 const courseRoutes = require('./routes/course')
 const classRoutes = require('./routes/class')
 const studentRoutes = require('./routes/student')
-const examinationSemesterRoutes = require('./routes/examinationSemester')
+const examSemesterRoutes = require('./routes/examSemester')
+const examRoomRoutes = require('./routes/examRoom')
+const examShiftRoutes = require('./routes/examShift')
 
 connectDb()
 
@@ -24,7 +26,9 @@ app.use('/', accountRoutes)
 app.use('/students', studentRoutes)
 app.use('/courses', courseRoutes)
 app.use('/courses/classes', classRoutes)
-// app.use('/examinations', examinationSemesterRoutes)
+app.use('/exams', examSemesterRoutes)
+app.use('/exams/shifts/rooms', examRoomRoutes)
+app.use('/exams/shifts', examShiftRoutes)
 
 app.use((req, res, err) => {
     const error = new Error('not found')

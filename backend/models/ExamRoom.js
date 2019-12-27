@@ -8,4 +8,4 @@ const ExamRoom = new mongoose.Schema({
     available_seat: String,
 })
 
-module.exports = mongoose.model('exam_rooms', ExamRoom)
+module.exports = mongoose.model('rooms', ExamRoom)

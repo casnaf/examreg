@@ -4,7 +4,7 @@ const ExamShift = new mongoose.Schema({
     exam_date: String,
     start_time: String,
     end_time: String,
-    room: [{ type: mongoose.Schema.Types.ObjectId, ref: 'exam_rooms' }],
+    rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'rooms' }]
 })
 
-module.exports = mongoose.model('exam_shifts', ExamShift)
+module.exports = mongoose.model('shifts', ExamShift)

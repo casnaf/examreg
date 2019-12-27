@@ -1,30 +1,12 @@
-// const Sequelize = require('sequelize')
-// const connection ={}
-// const env = 'dev'
-// const config = require('./config.json')[env]
-
-// const sequelize = new Sequelize(
-//     config.database,
-//     config.username,
-//     config.password,
-//     {
-//         host: config.host,
-//         port: config.port,
-//         dialect: config.dialect,
-//         pool: config.pool
-//     }
-// )
-
-// sequelize.sync({
-//     force: false
-// }) 
-
-// connection.sequelize = sequelize
-
-// module.exports = connection
-
-// mongodb
 const mongoose = require('mongoose')
+require('../models/ExamSemester')
+require('../models/ExamRoom')
+require('../models/ExamShift')
+require('../models/Course')
+require('../models/Account')
+require('../models/Class')
+require('../models/Admin')
+require('../models/Student')
 
 exports.connectDb = () => {
     const db_link = 'mongodb+srv://examreg:examreg123@test-vjpn7.gcp.mongodb.net/examreg?retryWrites=true&w=majority'
